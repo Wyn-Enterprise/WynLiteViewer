@@ -1,0 +1,432 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        #demo {
+            overflow: auto;
+            height: 100%;
+            position: relative;
+            margin-top: 10px;
+        }
+
+        #dashboardContainer {
+            width: 83vw;
+            height: 83vh;
+        }
+
+        .container {
+            padding: 0px !important;
+            margin-left: 0px !important;
+            margin-right: 0px !important;
+            width: 100% !important;
+            color: #ebebeb;
+            background-color: #111214;
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 99% !important;
+                max-height: 99% !important;
+            }
+        }
+
+        .header {
+            height: 50px;
+            font-size: 16px;
+            display: flex;
+        }
+
+        .content {
+            padding-top: 10px;
+            height: 95%;
+        }
+
+        .leftPanel {
+            padding-left: 15px;
+        }
+
+        #dashboardName {
+            margin-top: 10px;
+        }
+
+            #dashboardName:hover {
+                text-decoration: underline;
+                color: #a5cef2;
+            }
+
+        #pagesList {
+            margin-top: 30px;
+        }
+
+            #pagesList > li:hover {
+                text-decoration: underline;
+                color: #a5cef2;
+            }
+
+        #navigationContainer > button {
+            margin-left: 10px;
+        }
+
+        #scenariosList {
+            margin-left: 100px;
+        }
+
+        #breadcrumbsDiv {
+            width: 80%;
+        }
+
+        /* Style the list */
+        ul.breadcrumb {
+            padding: 10px 16px;
+            list-style: none;
+            background-color: transparent;
+            float: right;
+        }
+
+            /* Display list items side by side */
+            ul.breadcrumb li {
+                display: inline;
+                font-size: 14px;
+                color: #ebebeb;
+            }
+
+                /* Add a slash symbol (/) before/behind each list item */
+                ul.breadcrumb li + li:before {
+                    padding: 8px;
+                    color: #ebebeb;
+                    content: "/\00a0";
+                }
+
+            /* Add a color to all links inside the list */
+            ul.breadcrumb li {
+                color: #ebebeb;
+                text-decoration: none;
+            }
+
+                /* Add a color on mouse-over */
+                ul.breadcrumb li:hover {
+                    color: #a5cef2;
+                    /*text-decoration: underline;*/
+                }
+    </style>
+
+    <!--Bootstrap-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="https://wyn-demo.grapecity.com/lib/polyfills.js"></script>
+    <script type="text/javascript" src="https://wyn-demo.grapecity.com/api/PluginAssets/dashboards-5.0.19561.0/dashboard.viewerLite.js"></script>
+    <script type="text/javascript" src="https://wyn-demo.grapecity.com/api/PluginAssets/dashboards-5.0.19561.0/dashboard.viewerLite.chart.js"></script>
+    <script type="text/javascript" src="https://wyn-demo.grapecity.com/api/PluginAssets/dashboards-5.0.19561.0/dashboard.viewerLite.sheet.js"></script>
+
+    <link rel="stylesheet" href="https://wyn-demo.grapecity.com/api/PluginAssets/dashboards-5.0.19561.0/dashboard.viewerLite.css" />
+    <link rel="stylesheet" href="https://wyn-demo.grapecity.com/api/PluginAssets/dashboards-5.0.19561.0/dashboard.viewerLite.vendor.css" />
+
+    <script type="text/javascript" src="scripts/config.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="row content">
+            <div class="col-md-2">
+                <div class="leftPanel">
+                    <div class="header">
+                        <img src="assets/wyn-logo.png" alt="wyn" height="35" width="200" />
+                    </div>
+                    <div id="dashboardName"></div>
+                    <ul id="pagesList">
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="header">
+                    <div>
+                        DASHBOARD LITE VIEWER
+                    </div>
+                    <div id="breadcrumbsDiv">
+                        <ul id="breadcrumbList" class="breadcrumb">
+                        </ul>
+                    </div>
+                </div>
+                <div id="navigationContainer" class="row">
+                    <select id="pagesDropdown">
+                    </select>
+                    <button id="btnPrevPage" class="btn btn-primary">Prev</button>
+                    <button id="btnNextPage" class="btn btn-primary">Next</button>
+                    <select id="scenariosList">
+                    </select>
+                </div>
+                <div class="row">
+                    <main id="demo">
+                        <div id="dashboardContainer">
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const tar = document.querySelector('#demo');
+        const breadcrumbList = document.querySelector("#breadcrumbList");
+        var breadcrumbsArray = [];
+
+        var liteViewer = WynDashboards.createViewerLite({
+            dashboardId: wynConfig.dashboardId,
+            token: wynConfig.token,
+            baseUrl: wynConfig.baseUrl,
+            lng: 'en-us', // optional
+            dp: '', // optional
+            theme: 'default' // options: custom theme should work with correct css file
+        });
+
+        window.onload = function () {
+
+            var dashboardName = document.querySelector("#dashboardName");
+            dashboardName.onclick = LoadLiteViewer;
+
+            var scenariosList = document.querySelector("#scenariosList");
+            scenariosList.onchange = btnScenario_click;
+
+            var pagesDropdown = document.querySelector("#pagesDropdown");
+            pagesDropdown.onchange = pagesDropdown_change;
+
+            var btnPrevPage = document.querySelector("#btnPrevPage");
+            btnPrevPage.onclick = btnPrevPage_click;
+
+            var btnNextPage = document.querySelector("#btnNextPage");
+            btnNextPage.onclick = btnNextPage_click;
+
+            LoadLiteViewer();
+
+            var liHome = document.createElement("li");
+            liHome.onclick = LoadLiteViewer;
+            var aHome = document.createElement("a");
+            aHome.href = "#";
+            breadcrumbList.appendChild(liHome);
+
+        };
+
+        function LoadLiteViewer() {
+
+            liteViewer.destroy();
+            liteViewer.initialize({
+                container: tar,
+            }).then((dash) => {
+                const dashboardDom = document.querySelector("#dashboardContainer");
+
+                breadcrumbsArray = [];
+                breadcrumbsArray.push("Home");
+
+                for (var i = breadcrumbList.children.length - 1; i >= 1; i--)
+                    breadcrumbList.removeChild(breadcrumbList.children[i]);
+
+                var dashName = dash.name;
+                document.querySelector("#dashboardName").innerHTML = dashName;
+
+                var liHome = breadcrumbList.children[0];
+                liHome.innerHTML = dashName;
+
+                var pagesList = document.querySelector("#pagesList");
+
+                while (pagesList.firstChild) {
+                    pagesList.removeChild(pagesList.firstChild);
+                }
+
+                var scenariosList = document.querySelector("#scenariosList");
+                var pagesDropdown = document.querySelector("#pagesDropdown");
+
+                var p, Q = pagesDropdown.options.length - 1;
+                for (p = Q; p >= 0; p--) {
+                    pagesDropdown.remove(p);
+                }
+
+                var i, L = scenariosList.options.length - 1;
+                for (i = L; i >= 0; i--) {
+                    scenariosList.remove(i);
+                }
+
+                let optPageDefault = new Option(" Select a Page ", 0);
+                pagesDropdown.add(optPageDefault, undefined);
+
+                let optScenarioDefault = new Option(" Select an individual Chart ", 0);
+                scenariosList.add(optScenarioDefault, undefined);
+
+                for (var p = 0; p < dash.pages.length; p++) {
+                    var page = dash.pages[p];
+
+                    var liPage = document.createElement("li");
+                    liPage.innerHTML = page.name;
+                    liPage.onclick = liPage_click;
+
+                    pagesList.appendChild(liPage);
+
+                    let opt = new Option(page.name, page.name);
+                    pagesDropdown.add(opt, undefined);
+
+                    for (var s in page.scenarios) {
+                        var scenario = page.scenarios[s];
+
+                        if (scenario.name != "" && scenario.name.indexOf("richEditor") == -1 && !scenario.name.toLowerCase().startsWith("txt") && !scenario.name.toLowerCase().startsWith("img")) {
+                            let opt = new Option(scenario.name, scenario.name);
+                            scenariosList.add(opt, undefined);
+                        }
+                    }
+                }
+
+                dash.connect(dashboardDom);
+
+                // listen to the event if you need
+                dash.on('render', () => {
+                    //console.log('>>>', dash.name, 'dash render start');
+                });
+                dash.on('rendered', () => {
+                    //console.log('>>>', dash.name, 'dash render end');
+                });
+                dash.on('mounted', () => {
+                    //console.log('>>>', dash.name, 'dash mounted');
+                });
+
+                dash.refresh();
+            });
+        }
+
+        function liPage_click(args) {
+            let page = args.srcElement.textContent;
+            var pageDropDown = document.querySelector("#pagesDropdown");
+            for (var i = 0; i < pageDropDown.options.length; i++) {
+                if (pageDropDown.options[i].text == page)
+                    pageDropDown.selectedIndex = pageDropDown.options[i].index;
+            }
+            loadPage(page);
+        }
+
+        function pagesDropdown_change(args) {
+            if (args.srcElement.selectedIndex == 0)
+                return;
+
+            let page = args.srcElement.selectedOptions[0].value;
+            loadPage(page);
+        }
+
+        function btnPrevPage_click(args) {
+            var pageDropDown = document.querySelector("#pagesDropdown");
+            var selectedIndex = pageDropDown.selectedIndex;
+            if (selectedIndex > 1) {
+                loadPage(pageDropDown.options[pageDropDown.selectedIndex - 1].value);
+                pageDropDown.selectedIndex = pageDropDown.selectedIndex - 1;
+            }
+        }
+
+        function btnNextPage_click(args) {
+            var pageDropDown = document.querySelector("#pagesDropdown");
+            var selectedIndex = pageDropDown.selectedIndex;
+            if (selectedIndex < pageDropDown.options.length - 1) {
+                loadPage(pageDropDown.options[pageDropDown.selectedIndex + 1].value);
+                pageDropDown.selectedIndex = pageDropDown.selectedIndex + 1;
+            }
+        }
+
+        function loadPage(page) {
+            liteViewer.destroy();
+            liteViewer.initialize({
+                container: tar,
+            }).then((dash) => {
+                const dashboardDom = document.querySelector("#dashboardContainer");
+                let selectedPage = dash.getPageByName(page);
+
+                var liPage = document.createElement("li");
+                liPage.innerHTML = page;
+                liPage.onclick = liPage_click;
+
+                if (breadcrumbsArray.length > 2) {
+                    breadcrumbsArray.pop();
+                    breadcrumbList.removeChild(breadcrumbList.children[2]);
+                    breadcrumbList.removeChild(breadcrumbList.children[1]);
+                }
+                else if (breadcrumbsArray.length == 2 && breadcrumbsArray[1] != "Page") {
+                    breadcrumbsArray[1] = "Page";
+                    breadcrumbList.removeChild(breadcrumbList.children[1]);
+                }
+                else if (breadcrumbsArray.length == 2 && breadcrumbsArray[1] == "Page") {
+                    breadcrumbList.removeChild(breadcrumbList.children[1]);
+                }
+                else
+                    breadcrumbsArray.push("Page");
+
+                breadcrumbList.appendChild(liPage);
+
+                var scenariosList = document.querySelector("#scenariosList");
+
+                var i, L = scenariosList.options.length - 1;
+                for (i = L; i >= 0; i--) {
+                    scenariosList.remove(i);
+                }
+
+                let optDefault = new Option(" Select an individual Chart ", 0);
+                scenariosList.add(optDefault, undefined);
+
+                for (var s in selectedPage.scenarios) {
+                    var scenario = selectedPage.scenarios[s];
+
+                    if (scenario.name != "" && scenario.name.indexOf("richEditor") == -1 && !scenario.name.toLowerCase().startsWith("txt") && !scenario.name.toLowerCase().startsWith("img")) {
+                        let opt = new Option(scenario.name, scenario.name);
+                        scenariosList.add(opt, undefined);
+                    }
+                }
+                selectedPage.connect(dashboardDom);
+                selectedPage.refresh();
+            });
+        }
+
+        function btnScenario_click(args) {
+
+            if (args.srcElement.selectedIndex == 0)
+                return;
+
+            var scenarioName = args.srcElement.selectedOptions[0].value;
+
+            liteViewer.destroy();
+            liteViewer.initialize({
+                container: tar,
+            }).then((dash) => {
+                const dashboardDom = document.querySelector("#dashboardContainer");
+
+                var liScenario = document.createElement("li");
+                liScenario.innerHTML = scenarioName;
+                liScenario.onclick = btnScenario_click;
+
+                if (breadcrumbsArray.length == 3 && breadcrumbsArray[2] == "Scenario" && breadcrumbList.children.length == 3) {
+                    breadcrumbList.removeChild(breadcrumbList.children[2]);
+                }
+                else if (breadcrumbsArray.length == 2 && breadcrumbsArray[1] == "Scenario") {
+                    for (var i = breadcrumbList.children.length - 1; i >= 1; i--)
+                        breadcrumbList.removeChild(breadcrumbList.children[i]);
+                }
+                else if (breadcrumbsArray.length == 2 && breadcrumbsArray[1] == "Page") {
+                    breadcrumbsArray.push("Scenario");
+                    for (var i = breadcrumbList.children.length - 1; i > 1; i--)
+                        breadcrumbList.removeChild(breadcrumbList.children[i]);
+                }
+                else
+                    breadcrumbsArray.push("Scenario");
+
+                breadcrumbList.appendChild(liScenario);
+
+                let selectedScenario = dash.getScenarioByName(scenarioName);
+                selectedScenario.connect(dashboardDom);
+                selectedScenario.refresh();
+            });
+        }
+    </script>
+</body>
+</html>
